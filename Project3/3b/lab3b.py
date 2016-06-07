@@ -91,6 +91,7 @@ def main():
             free_inode_set.add(int(row[1]))
 
     #---------compute used block, unallocated block------
+    unallocated_block = {}
     for inode in range(num_of_inodes):
         if inode not in allocated_inode_block_map:
             continue
@@ -99,17 +100,33 @@ def main():
             if blocks[i] == 0:
                 break
             if blocks[i] in free_block_set:
-                output_file.write("UNALLOCATED BLOCK < %d > REFERENCED BY INODE < %d > ENTRY < %d >\n" \
-                %(blocks[i], inode, i))
+                if blocks[i] not in unallocated_block:
+                    unallocated_block[blocks[i]] = [[],[],[]] # inode indirect entry
+                # output_file.write("UNALLOCATED BLOCK < %d > REFERENCED BY INODE < %d > ENTRY < %d >\n" \
+                # %(blocks[i], inode, i))
+                unallocated_block[blocks[i]][0].append(inode)
+                unallocated_block[blocks[i]][1].append(-1)
+                unallocated_block[blocks[i]][2].append(i)
         if blocks[12] != 0:
             # indirect blocks
-            check_indirect_block(blocks[12], inode, indirect_block_map, free_block_set, output_file)
+            check_indirect_block(blocks[12], inode, indirect_block_map, free_block_set, unallocated_block)
         if blocks[13] != 0:
             # second
-            check_second_block(blocks[13], inode, indirect_block_map, free_block_set, output_file)
+            check_second_block(blocks[13], inode, indirect_block_map, free_block_set, unallocated_block)
         if blocks[14] != 0:
             # triple
-            check_triple_block(blocks[14], inode, indirect_block_map, free_block_set, output_file)
+            check_triple_block(blocks[14], inode, indirect_block_map, free_block_set, unallocated_block)
+
+    for block in unallocated_block.keys():
+        output_file.write("UNALLOCATED BLOCK < %d > REFERENCED BY"%block)
+        for j in range(len(unallocated_block[block][0])):
+            if unallocated_block[block][1] >= 0:
+                output_file.write(" INODE < %d > ENTRY < %d >"%\
+                (unallocated_block[block][0][j], unallocated_block[block][2][j]))
+            else:
+                output_file.write(" INODE < %d > INDIRECT BLOCK < %d > ENTRY < %d >"%\
+                (unallocated_block[block][0][j],unallocated_block[block][1][j],unallocated_block[block][2][j]))
+        output_file.write("\n")
 
     #--------duplicately allocated block-------
     used_block = {}
@@ -213,7 +230,7 @@ def main():
             if blocks[i] == 0:
                 break
             if blocks[i] > num_of_blocks:
-                output_file.write("INVALID BLOCK < %d > REFERENCED BY INODE < %d > ENTRY < %d >\n" \
+                output_file.write("INVALID BLOCK < %d > IN INODE < %d > ENTRY < %d >\n" \
                 %(blocks[i], inode, i))
         if blocks[12] != 0:
             # indirect blocks
@@ -228,28 +245,33 @@ def main():
     output_file.close()
 
 
-def check_indirect_block(blocks, inode, indirect_block_map, free_block_set, output_file):
+def check_indirect_block(blocks, inode, indirect_block_map, free_block_set, unallocated_block):
     if blocks in indirect_block_map:
         block = 0
         for j in range(len(indirect_block_map[blocks][0])):
             block = indirect_block_map[blocks][1][j]
             if block in free_block_set:
-                output_file.write("UNALLOCATED BLOCK < %d > REFERENCED BY INODE < %d > (INDIRECT BLOCK < %d >) ENTRY < %d >)\n"\
-                %(block,inode,blocks,indirect_block_map[blocks][0][j]))
+                if block not in unallocated_block:
+                    unallocated_block[block] = [[],[],[]]
+                unallocated_block[block][0].append(inode)
+                unallocated_block[block][1].append(blocks)
+                unallocated_block[block][2].append(indirect_block_map[blocks][0][j])
+                # output_file.write("UNALLOCATED BLOCK < %d > REFERENCED BY INODE < %d > INDIRECT BLOCK < %d > ENTRY < %d >\n"\
+                # %(block,inode,blocks,indirect_block_map[blocks][0][j]))
 
-def check_second_block(blocks, inode, indirect_block_map, free_block_set, output_file):
-    check_indirect_block(blocks, inode, indirect_block_map, free_block_set, output_file)
-
-    indirects = indirect_block_map[blocks][1]
-    for b in indirects:
-        check_indirect_block(b, inode, indirect_block_map, free_block_set, output_file)
-
-def check_triple_block(blocks, inode, indirect_block_map, free_block_set, output_file):
-    check_indirect_block(blocks, inode, indirect_block_map, free_block_set, output_file)
+def check_second_block(blocks, inode, indirect_block_map, free_block_set, unallocated_block):
+    check_indirect_block(blocks, inode, indirect_block_map, free_block_set, unallocated_block)
 
     indirects = indirect_block_map[blocks][1]
     for b in indirects:
-        check_second_block(b, inode, indirect_block_map, free_block_set, output_file)
+        check_indirect_block(b, inode, indirect_block_map, free_block_set, unallocated_block)
+
+def check_triple_block(blocks, inode, indirect_block_map, free_block_set, unallocated_block):
+    check_indirect_block(blocks, inode, indirect_block_map, free_block_set, unallocated_block)
+
+    indirects = indirect_block_map[blocks][1]
+    for b in indirects:
+        check_second_block(b, inode, indirect_block_map, free_block_set, unallocated_block)
 
 
 #-------duplicate-------------
@@ -285,7 +307,7 @@ def check_invalid_indirect_block(blocks, inode, indirect_block_map, max_block, o
         for j in range(len(indirect_block_map[blocks][0])):
             block = indirect_block_map[blocks][1][j]
             if block > max_block:
-                output_file.write("INVALID BLOCK < %d > IN INODE < %d > (INDIRECT BLOCK < %d >) ENTRY < %d >)\n"\
+                output_file.write("INVALID BLOCK < %d > IN INODE < %d > INDIRECT BLOCK < %d > ENTRY < %d >\n"\
                 %(block,inode,blocks,indirect_block_map[blocks][0][j]))
 
 def check_invalid_second_block(blocks, inode, indirect_block_map, max_block, output_file):
