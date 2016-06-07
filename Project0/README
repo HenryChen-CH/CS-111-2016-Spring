@@ -1,0 +1,44 @@
+Target:
+	This is the source code for Project0, which aims at implementing a simple function that take one file as input, one file as output, read from input and write to output. 
+	Also, segmentation fault is tested in this project. We need to write signal handler to handler signal caused by segmentation fault.
+
+
+contained file:
+	lab0.c : source code 
+	Makefile: for make command
+
+In my implementation, the main procedure is as follow:
+1) parse the parameter
+2) open input and output file, if segfault is set, make segfault using a null pointer.
+3) standard input and output redirection
+4) read and write
+5) close file
+
+Case may exist that output file exists, my method is trying to open the file and clear its content. 
+
+
+
+When doing smoke test, several cases are considered:
+1) input and output are right, can the program copies the content of input to output
+2) one of input or output cann't be open
+3) segfault is set
+4) segfault and catch is set, can the signal handler catched the signal 
+
+
+Test case used:
+1) input and output are valid, use diff to compare input and output file
+2) input is invlaid, test the outcome of the program
+3) use segfault but without catch
+4) use segfault and catch
+5) create an output directory and make it unreadable, try to create file in that folder
+
+
+
+The program can pass all the test. There are still things can be improved. During the copy process, if things went wrong, the program will still exit normally. Error imfornation could be reported. 
+
+
+
+
+
+
+

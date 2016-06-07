@@ -1,0 +1,76 @@
+Number of threads and iterations to cause failure:
+threads: 2 iterations: 2000
+threads: 3 iterations: 500
+threads: 5 iterations: 150
+
+Answer:
+-----------------------------------------------
+2A.1A:
+	When the number of threads and iterations are small, the probability of happening race condition is low. Especially with only one thread, race condition cannot happen.
+2A.1B:
+	With small number of iterations, it will run a short time, probability of race condition happens is small. So, it seldom fails.
+
+-----------------------------------------------
+With yield:
+threads: 2 iterations: 100
+threads：3 iterations: 60
+threads: 5 iterations: 30
+
+Compare with yield and without yiels: time per operation
+all iteration is 10000
+thread yield withoutyield
+2      1435   46
+3      2522   424
+5      1888   239
+
+2A.2A:
+	The time creating thread is amortized with the increasing of iterations. The time creating threads is quite fixed, so the averaged cost per iteration drops with increasing iteration.
+2A.2B:
+	With extremely large number of iterations, we can get the right cost. Because the overhead caused by creating thread is reduced to nearly zero.
+2A.2C:
+	With yield, the number of context switching increases. Context switch takes time, this is where the increased time comes from.
+	Also, because of yield, the wait time of thread increases. Because the probability of a thread holding lock is switched is largely increased. Waiting time increases.
+2A.2D:
+	Yes. We can set a time for each thread, the timer runs when the thread is running. Finally add all the counters gives us the valid timing. 
+
+
+-----------------------------------------------
+with three types of locks, even with yield, race condition will not happen.
+
+With large enough iterations, different lock types perform differently.
+Thread number 2: time per operation/ns
+spin lock: 398
+mutex: 118
+compare and swap: 
+none: 15
+
+Thread number 3: time per operation/ns
+spin lock: 467
+mutex: 141
+compare and swap: 84
+none: 19
+
+Thread number 5  time per operation/ns
+spin lock: 670
+mutex: 218
+compare and swap: 82
+none: 19
+
+2A.3A:
+	When number of threads is small, competition for shared variable is not serious, threads don't need to wait for too long. Mutex, spin-lock, compare-and-swap don't waste long time getting shared resource. 
+2A.3B:
+	With more threads, context switch happens more frequently, which takes more time. 
+	Also, because of lock, threads need to wait more time to get the resource. For example, spin-lock, when one threads, all the other threads will spin, so the wasted time increases linearly with the number of threads. Other two locks are similarly.
+2A.3C:
+	Spin-lock will waste the whole time slice with lock held by other threads, it will not yield. So, with large number of threads, with one thread holding the lock, all other threads will waste a time slick. The other lock, mutex and compare-and-swap, will not waste whole time slice.
+
+Files included are lab2a.c, fig1.png fig2.png Makefile README
+lab2a.c is the sourece file.
+fig1.png is the picture for the first graph, fig2.png is the picture for the second graph
+Makefile is used for make command.
+
+
+
+
+
+

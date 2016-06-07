@@ -1,0 +1,185 @@
+------------------------------------
+2C.1A: Explain the change in performance of the synchronized methods as a
+function of the number of threads per list.
+Answer:
+The figure in project2c shows that when the ratio is below 1, the average cost
+is stable. As the ratio increases beyond 1, the average cost increases.
+The ratio is less than 1 is equivalent to saying number of threads is less than
+number of lists. At this point, the memory contention is not fierce. contention
+is less likely to happen. As the number of list decreases, threads contend to
+manipulate lists, the contention become fierce, more overhead is created. So the
+average cost increases.
+
+
+2C.1B: Explain why threads per list is a more interesting number than threads
+(for this particular measurement).
+Answer:
+In 2b, the second graph is about the relationship between average cost and threads.
+There is only one list. Theads number represent how fierce the contention is.
+But in this project, there are multiple lists, the contention is represented by
+the ratio of threads and lists.
+So the ratio between threads and lists is more suitable for representing the fierce
+of memory contention.
+
+------------------------------------
+--threads=1 --iterations=10000 --lists=1
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total
+ time   seconds   seconds    calls  us/call  us/call  name
+ 58.01      0.11     0.11    10000    11.02    11.02  SortedList_lookup
+ 42.19      0.19     0.08    10000     8.02     8.02  SortedList_insert
+  0.00      0.19     0.00    20001     0.00     0.00  lock
+  0.00      0.19     0.00    20001     0.00     0.00  unlock
+  0.00      0.19     0.00    20000     0.00     0.00  hash_key
+  0.00      0.19     0.00    10000     0.00     0.00  SortedList_delete
+  0.00      0.19     0.00    10000     0.00     0.00  random_key
+  0.00      0.19     0.00        2     0.00     0.00  SortedList_length
+------------------------------------
+mutex
+--threads=8 --sync=m --iterations=10000 --lists=2
+  Each sample counts as 0.01 seconds.
+   %   cumulative   self              self     total
+  time   seconds   seconds    calls  us/call  us/call  name
+  84.96     11.57    11.57    79636   145.31   145.31  SortedList_lookup
+  15.01     13.62     2.04    79688    25.65    25.65  SortedList_insert
+   0.15     13.64     0.02                             thread_run
+   0.07     13.65     0.01       18   556.62   556.62  SortedList_length
+   0.00     13.65     0.00   159504     0.00     0.00  lock
+   0.00     13.65     0.00   159417     0.00     0.00  hash_key
+   0.00     13.65     0.00   159350     0.00     0.00  unlock
+   0.00     13.65     0.00    80000     0.00     0.00  random_key
+   0.00     13.65     0.00    79736     0.00     0.00  SortedList_delete
+
+--threads=8 --sync=m --iterations=10000 --lists=8
+   Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total
+ time   seconds   seconds    calls  us/call  us/call  name
+ 81.87      2.87     2.87    75439    37.98    37.98  SortedList_lookup
+ 17.18      3.47     0.60    75963     7.91     7.91  SortedList_insert
+  0.86      3.50     0.03       72   417.46   417.46  SortedList_length
+  0.29      3.51     0.01   151342     0.07     0.07  hash_key
+  0.00      3.51     0.00   152999     0.00     0.00  lock
+  0.00      3.51     0.00   150026     0.00     0.00  unlock
+  0.00      3.51     0.00    80000     0.00     0.00  random_key
+  0.00      3.51     0.00    75546     0.00     0.00  SortedList_delete
+
+--threads=8 --sync=m --iterations=10000 --lists=16
+  Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total
+ time   seconds   seconds    calls  us/call  us/call  name
+ 82.70      1.56     1.56    72137    21.67    21.67  SortedList_lookup
+ 15.90      1.86     0.30    71629     4.20     4.20  SortedList_insert
+  1.06      1.88     0.02      143   140.13   140.13  SortedList_length
+  0.53      1.89     0.01                             thread_run
+  0.00      1.89     0.00   146069     0.00     0.00  lock
+  0.00      1.89     0.00   143493     0.00     0.00  hash_key
+  0.00      1.89     0.00   141592     0.00     0.00  unlock
+  0.00      1.89     0.00    80000     0.00     0.00  random_key
+  0.00      1.89     0.00    72417     0.00     0.00  SortedList_delete
+
+----------------------------------
+spinlock
+--threads=8 --sync=s --iterations=10000 --lists=2
+  Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total
+ time   seconds   seconds    calls  us/call  us/call  name
+ 93.06    144.79   144.79   157367   920.06   920.06  lock
+  5.54    153.41     8.63    72510   118.97   118.97  SortedList_lookup
+  1.58    155.87     2.45    76236    32.20    32.20  SortedList_insert
+  0.01    155.88     0.01       18   556.62   556.62  SortedList_length
+  0.01    155.89     0.01                             thread_run
+  0.00    155.89     0.00   159393     0.00     0.00  unlock
+  0.00    155.89     0.00   158915     0.00     0.00  hash_key
+  0.00    155.89     0.00    80000     0.00     0.00  random_key
+  0.00    155.89     0.00    79859     0.00     0.00  SortedList_delete
+
+--threads=8 --sync=s --iterations=10000 --lists=8
+  Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total
+ time   seconds   seconds    calls  us/call  us/call  name
+ 49.59      3.95     3.95    66103    59.72    59.72  SortedList_lookup
+ 39.15      7.06     3.12   148276    21.01    21.01  lock
+ 11.20      7.96     0.89    66575    13.39    13.39  SortedList_insert
+  0.25      7.98     0.02       70   286.26   286.26  SortedList_length
+  0.00      7.98     0.00   149535     0.00     0.00  unlock
+  0.00      7.98     0.00   148600     0.00     0.00  hash_key
+  0.00      7.98     0.00    80000     0.00     0.00  random_key
+  0.00      7.98     0.00    75546     0.00     0.00  SortedList_delete
+
+
+-threads=8 --sync=s --iterations=10000 --lists=16
+  Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total
+ time   seconds   seconds    calls  us/call  us/call  name
+ 54.93      1.59     1.59    58378    27.29    27.29  SortedList_lookup
+ 31.44      2.50     0.91   135299     6.74     6.74  lock
+ 12.44      2.87     0.36    60134     6.00     6.00  SortedList_insert
+  0.69      2.89     0.02      141   142.12   142.12  SortedList_length
+  0.35      2.90     0.01    80000     0.13     0.13  random_key
+  0.35      2.91     0.01                             thread_run
+  0.00      2.91     0.00   136977     0.00     0.00  unlock
+  0.00      2.91     0.00   135575     0.00     0.00  hash_key
+  0.00      2.91     0.00    69221     0.00     0.00  SortedList_delete
+
+2C.2A: Compare the time per operation when increasing the lists value.
+Explain your observations.
+Answer: time per operation drops increasing the lists value with fixed threads,
+no matter the lock is spinlock or mutex.
+With threads fixed, increasing the lists means memory contention is released. The
+overhead acquiring lock is decreased, and the average cost per operation decreases
+
+2C.2B: Compare the time per operation between mutex and spinlock.
+Explain your observations.
+the result is shown in the table:
+lists    spinlock   mutex
+2          3.58     4.21
+8          1.41     1.86
+16         1.15     1.62
+From the result, we can conclude that with spin lock time per operation is less
+than mutex. Spin lock is faster than mutex.
+
+-----------------------------------
+2C.3A: Why must the mutex be held when pthread_cond_wait is called?
+Answer: holding the mutes to guarantee the exclusive access of the condition
+variable.
+if not, suppose one thread is calling pthread_cond_wait, putting itself to sleep,
+but got contexted switch, another threads change the condition variable and call
+pthread_cond_signal, finding no sleeping threads. Then the first thread will sleep
+forever.
+
+2C.3B: Why must the mutex be released when the waiting thread is blocked?
+Answer: To allow other thread to change the condition variable and wake up the
+thread. If mutex is not released, no other thread will be able to wake up it.
+
+2C.3C: Why must the mutex be reacquired when the calling thread resumes?
+Answer: to guarantee exclusive access of condition variable.
+If not acquired, another thread may change the condition, and the thread may wake
+up at the wrong condition.
+
+2C.3D: Why must mutex release be done inside of pthread_cond_wait?
+Why can't the caller simply release the mutex before calling pthread_cond_wait?
+Answer:
+If mutex is released before, the thread may sleep forever.
+Suppose the mutex is released before pthread_cond_wait, if the thread is switched
+before calling pthread_cond_wait, another thread changes the condition variable,
+call pthread_cond_signal, finding not thread to wake up. Then the first thread
+put it to sleep, and will not get waked up
+
+2C.3E: Can pthread_cond_wait be implemented in user mode?  If so, how?
+If it can only be implemented by a system call, explain why?
+Answer:
+pthread_cond_wait cannot be implemented in user mode.
+In pthread_cond_wait, the thread needs put itself to a queue, and release the lock.
+If the thread is switched between the two operation, the thread release the lock,
+without putting itself into the queue. When another thread tries to signal, it will
+not wake up the thread because it is not in the queue. And the thread will sleep forever.
+So the question here is that in user mode,  preemption can't be prevented.
+
+Another reason is that the thread data structure is stored in the
+OS, if user mode program can modify it, it may do something harmful. If user mode
+program is prevented to access thread data structure, it can not put it into a queue.
+So, pthread_cond_wait cann't be implemented in user mode.
+
+
+Included file:
+lab2c.c SortedList.h SortedList.c Makefile README pic1.png

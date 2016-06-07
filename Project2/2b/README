@@ -1,0 +1,29 @@
+------------------------------------------
+2B.1A:
+    The graph shows that the line first decreases, then goes up.
+    The line reaches the lowest at about 500 of iterations.
+    The reason is, in the first part of the graph, because creating threads take times,
+    the time spent manipulating lists is not an important factor.
+    Because threads creating time is quite fixed, as the iterations increase, the average time decreases.
+    In the second part, because the length of list grows, inserting and deleting takes more time. As the iterations
+    increases, the time grows linearly, so the line rises up.
+
+2B.1B:
+    If you want to make it looks like graph in lab2a, one way to correct it is to divide the time by
+    the number of insert operations. Because the time grows linearly with the length of the lists.
+    And the length of lists is proportion to the iterations, so divide the time by the insert operations
+    can correct it.
+
+
+-----------------------------------------
+2B.2A:
+    list critical section which involves insert and look up is longer than add() in project2a.
+    lock is held longer for a longer time than in 2A.
+    probability of conflict is higher in this project than in 2A.
+    more conflicts mean more thread waiting, which means more overhead, less parallel.
+
+
+Included file: SortedList.h SortedList.c lab2b.c head.h Makefile README pic1.png pic2.png
+SortedList.h and SortedList.c: Implementation of doubly linked list.
+lab2b.c: Implementation of lab2b execution file
+Makefile: for make, contains make, clean and dist

@@ -1,0 +1,12 @@
+Containing: lab1A.c Makefile README
+
+lab1A.c is the c file containing the main code, Makefile is used when you need using make. Makefile has two section: lab1 and dist. The dist will create a tar.gz file.
+
+
+In order to compile the code, just use make, lab1 executable program will be generated.
+make dist will create a tar.gz file, it contains the three files listed above.
+
+The program support two modes, one without --shell option, and one with --shell option.
+with --shell option corresponds to part two of the lab.
+
+

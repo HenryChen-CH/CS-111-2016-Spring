@@ -1,0 +1,10 @@
+Name: Hao Chen UID: 004587695
+
+File: client.c server.c head.h my.key Makefile
+client.c: source code for the client
+server.c: source code for server
+head.h: Include the head file used in client.c and server.c
+my.key: key file for encryption
+
+
+
